@@ -1,67 +1,59 @@
-﻿using BooksRatings.API.Models;
+﻿using BooksRatings.API.Context;
+using BooksRatings.API.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace BooksRatings.API.Repositories
 {
     public class BookRepository : IBookRepository
     {
-        private IDbConnection _db;
-        public BookRepository(IConfiguration config)
+        private readonly DapperContext _dapperContext;
+        public BookRepository(DapperContext dapperContext)
         {
-            _db = new SqlConnection(config.GetConnectionString("DefaultConnection"));
-        }
-        public Book Add(Book book)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("BookId", 0, DbType.Int32, ParameterDirection.Output);
-            parameters.Add("ISBN", book.ISBN, DbType.String, ParameterDirection.Input);
-            parameters.Add("Title", book.Title, DbType.String, ParameterDirection.Input);
-            parameters.Add("Description", book.Description, DbType.String, ParameterDirection.Input);
-            parameters.Add("AuthorId", book.AuthorId, DbType.Int32, ParameterDirection.Input);
-            parameters.Add("Year", book.Year, DbType.Int32, ParameterDirection.Input);
-            var sp = "AddBook";
-            _db.Execute(sp, parameters, commandType: CommandType.StoredProcedure);
-            book.Id = parameters.Get<int>("BookId");
-            return book;
+            _dapperContext = dapperContext;
         }
 
-        public Book Get(int id)
+        public async Task<IEnumerable<Book>> GetBooks()
         {
-            var parameters = new DynamicParameters();
-            parameters.Add("Id", id, DbType.Int32, direction:ParameterDirection.Input);
-            var sp = "GetBook";
-            return _db.Query<Book>(sp, parameters, commandType: CommandType.StoredProcedure).Single();
+            var query = "SELECT * FROM Books";
+            using (var dbConn = _dapperContext.CreateConnection())
+            {
+                var books = await dbConn.QueryAsync<Book>(query);
+                return books.ToList();
+            }
         }
-
-        public List<Book> GetAll()
+        public async Task<Book> GetBook(int id)
         {
-            return _db.Query<Book>("GetAllBooks", commandType:CommandType.StoredProcedure).ToList();
+            var query = "SELECT * FROM Books WHERE Id = @Id";
+            using (var dbConn = _dapperContext.CreateConnection())
+            {
+                var book = await dbConn.QueryAsync<Book>(query, new { @Id=id });
+                return book.FirstOrDefault();
+            }
         }
-
-        public void Remove(int id)
+        public async Task<Book> AddBook(Book book)
         {
-            var parameters = new DynamicParameters();
-            parameters.Add("Id", id, DbType.Int32, direction: ParameterDirection.Input);
-            _db.Execute("RemoveBook", parameters, commandType: CommandType.StoredProcedure);
-        }
-
-        public Book Update(Book book)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("BookId", book.Id, DbType.Int32, ParameterDirection.Input);
-            parameters.Add("ISBN", book.ISBN, DbType.String, ParameterDirection.Input);
-            parameters.Add("Title", book.Title, DbType.String, ParameterDirection.Input);
-            parameters.Add("Description", book.Description, DbType.String, ParameterDirection.Input);
-            parameters.Add("AuthorId", book.AuthorId, DbType.Int32, ParameterDirection.Input);
-            parameters.Add("Year", book.Year, DbType.Int32, ParameterDirection.Input);
-            var sp = "UpdateBook";
-            _db.Execute(sp, parameters, commandType: CommandType.StoredProcedure);
-            return book;
+            var query = "INSERT INTO Books (ISBN,Title,Description,AuthorId,Year) VALUES (@ISBN, @Title, @Description, @AuthorId, @Year);" +
+                "SELECT CAST(SCOPE_IDENTITY() as int);";
+            using (var dbConn = _dapperContext.CreateConnection())
+            {
+                var id = await dbConn.QueryAsync<int>(query,
+                    new
+                    {
+                        book.ISBN,
+                        book.Title,
+                        book.Description,
+                        book.AuthorId,
+                        book.Year
+                    });
+                book.Id = id.Single();
+                return book;
+            }
         }
     }
 }

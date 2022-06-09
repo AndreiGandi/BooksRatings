@@ -3,6 +3,7 @@ using BooksRatings.API.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BooksRatings.API.Controllers
 {
@@ -13,14 +14,15 @@ namespace BooksRatings.API.Controllers
         private IBookRepository _bookRepository;
         public BooksController(IBookRepository bookRepository)
         {
-            bookRepository = _bookRepository;
+            _bookRepository = bookRepository;
         }
         [HttpGet]
-        public ActionResult<IEnumerable<Book>> GetAllBooks()
+        public async Task<IActionResult> GetAllBooks()
         {
             try
             {
-                return _bookRepository.GetAll();
+                var books = await _bookRepository.GetBooks();
+                return Ok(books);
             }
             catch (System.Exception ex)
             {
@@ -31,21 +33,29 @@ namespace BooksRatings.API.Controllers
         [HttpGet("{id}")]
         public ActionResult<Book> GetBook(int id)
         {
-            var book = _bookRepository.Get(id);
-            return book == null ? NotFound() : Ok(book);
+            try
+            {
+                var book = _bookRepository.GetBook(id);
+                return book == null ? NotFound() : Ok(book);
+            }
+            catch(System.Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+            
         }
-        [HttpPost]
-        public ActionResult<Book> PostBook(Book book)
-        {
-            var addedBook = _bookRepository.Add(book);
-            return Ok(addedBook);
-        }
-        [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
-        {
-            _bookRepository.Remove(id);
-            return Ok();
-        }
+        //[HttpPost]
+        //public ActionResult<Book> PostBook(Book book)
+        //{
+        //    var addedBook = _bookRepository.Add(book);
+        //    return Ok(addedBook);
+        //}
+        //[HttpDelete("{id}")]
+        //public ActionResult Delete(int id)
+        //{
+        //    _bookRepository.Remove(id);
+        //    return Ok();
+        //}
 
 
     }

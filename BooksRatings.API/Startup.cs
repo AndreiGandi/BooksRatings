@@ -1,3 +1,4 @@
+using BooksRatings.API.Context;
 using BooksRatings.API.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -11,6 +12,7 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace BooksRatings.API
@@ -28,8 +30,11 @@ namespace BooksRatings.API
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers();
+            services.AddSingleton<DapperContext>();
             services.AddScoped<IBookRepository, BookRepository>();
+            services.AddControllers();
+            services.AddControllers().
+                AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "BooksRatings.API", Version = "v1" });
