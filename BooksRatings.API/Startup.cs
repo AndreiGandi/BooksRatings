@@ -32,9 +32,8 @@ namespace BooksRatings.API
 
             services.AddSingleton<DapperContext>();
             services.AddScoped<IBookRepository, BookRepository>();
+            services.AddScoped<IAuthorRepository, AuthorRepository>();
             services.AddControllers();
-            //services.AddControllers().
-            //    AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "BooksRatings.API", Version = "v1" });
