@@ -1,9 +1,11 @@
-﻿using BooksRatings.API.Models;
+﻿using BooksRatings.API.Dto;
+using BooksRatings.API.Models;
 using BooksRatings.API.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System;
 
 namespace BooksRatings.API.Controllers
 {
@@ -31,31 +33,32 @@ namespace BooksRatings.API.Controllers
             
         }
         [HttpGet("{id}")]
-        public ActionResult<Book> GetBook(int id)
+        public async Task<ActionResult<Book>> GetBook(int id)
         {
             try
             {
-                var book = _bookRepository.GetBook(id);
+                var book = await _bookRepository.GetBook(id);
                 return book == null ? NotFound() : Ok(book);
             }
-            catch(System.Exception ex)
+            catch(Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
             
         }
-        //[HttpPost]
-        //public ActionResult<Book> PostBook(Book book)
-        //{
-        //    var addedBook = _bookRepository.Add(book);
-        //    return Ok(addedBook);
-        //}
-        //[HttpDelete("{id}")]
-        //public ActionResult Delete(int id)
-        //{
-        //    _bookRepository.Remove(id);
-        //    return Ok();
-        //}
+        [HttpPost]
+        public async Task<IActionResult> CreateBook(BookForCreationDto book)
+        {
+            try
+            {
+                var company = await _bookRepository.CreateBook(book);
+                return Ok(company);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
 
 
     }

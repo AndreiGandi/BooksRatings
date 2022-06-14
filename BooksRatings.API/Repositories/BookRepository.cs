@@ -1,4 +1,5 @@
 ﻿using BooksRatings.API.Context;
+using BooksRatings.API.Dto;
 using BooksRatings.API.Models;
 using Dapper;
 using Microsoft.Data.SqlClient;
@@ -36,23 +37,30 @@ namespace BooksRatings.API.Repositories
                 return book.FirstOrDefault();
             }
         }
-        public async Task<Book> AddBook(Book book)
+
+        public async Task<Book> CreateBook(BookForCreationDto book)
         {
-            var query = "INSERT INTO Books (ISBN,Title,Description,AuthorId,Year) VALUES (@ISBN, @Title, @Description, @AuthorId, @Year);" +
-                "SELECT CAST(SCOPE_IDENTITY() as int);";
+            var sql = "INSERT INTO dbo.Books(ISBN,Title,Description,AuthorId,Year) VALUES(@ISBN,@Title,@Description,@AuthorId,@Year);" +
+                      "SELECT CAST(SCOPE_IDENTITY() as int)";
+            var parameters = new DynamicParameters();
+            parameters.Add("ISBN", book.ISBN, DbType.String);
+            parameters.Add("Title", book.Title, DbType.String);
+            parameters.Add("Description", book.Description, DbType.String);
+            parameters.Add("AuthorId", book.AuthorId, DbType.Int32);
+            parameters.Add("Year", book.Year, DbType.Int32);
             using (var dbConn = _dapperContext.CreateConnection())
             {
-                var id = await dbConn.QueryAsync<int>(query,
-                    new
-                    {
-                        book.ISBN,
-                        book.Title,
-                        book.Description,
-                        book.AuthorId,
-                        book.Year
-                    });
-                book.Id = id.Single();
-                return book;
+                var id = await dbConn.QuerySingleAsync<int>(sql, parameters);
+                var createdBook = new Book()
+                {
+                    Id = id,
+                    ISBN = book.ISBN,
+                    Title = book.Title,
+                    Description = book.Description,
+                    AuthorId = book.AuthorId,
+                    Year = book.Year,
+                };
+                return createdBook;
             }
         }
     }

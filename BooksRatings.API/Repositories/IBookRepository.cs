@@ -1,6 +1,9 @@
-﻿using BooksRatings.API.Models;
+﻿using BooksRatings.API.Dto;
+using BooksRatings.API.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Dapper;
+using System.Data;
 
 namespace BooksRatings.API.Repositories
 {
@@ -8,6 +11,8 @@ namespace BooksRatings.API.Repositories
     {
         public Task<Book> GetBook(int id);
         public Task<IEnumerable<Book>> GetBooks();
+        public Task<Book> CreateBook(BookForCreationDto book);
+        
 
     }
 }
