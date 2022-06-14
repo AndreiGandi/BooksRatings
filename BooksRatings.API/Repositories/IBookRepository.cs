@@ -12,7 +12,8 @@ namespace BooksRatings.API.Repositories
         public Task<Book> GetBook(int id);
         public Task<IEnumerable<Book>> GetBooks();
         public Task<Book> CreateBook(BookForCreationDto book);
-        
+        public Task UpdateBook(int id, BookForUpdateDto book);
+        public Task DeleteBook(int id);
 
     }
 }

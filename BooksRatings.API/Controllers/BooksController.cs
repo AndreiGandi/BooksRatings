@@ -30,7 +30,7 @@ namespace BooksRatings.API.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-            
+
         }
         [HttpGet("{id}")]
         public async Task<ActionResult<Book>> GetBook(int id)
@@ -40,26 +40,54 @@ namespace BooksRatings.API.Controllers
                 var book = await _bookRepository.GetBook(id);
                 return book == null ? NotFound() : Ok(book);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
-            
+
         }
         [HttpPost]
         public async Task<IActionResult> CreateBook(BookForCreationDto book)
         {
             try
             {
-                var company = await _bookRepository.CreateBook(book);
-                return Ok(company);
+                var createdBook = await _bookRepository.CreateBook(book);
+                return Ok(createdBook);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
         }
-
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateBook(int id, BookForUpdateDto book)
+        {
+            try
+            {
+                var dbBook = await _bookRepository.GetBook(id);
+                if (dbBook == null)
+                    return NotFound();
+                await _bookRepository.UpdateBook(id, book);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteBook(int id)
+        {
+            try
+            {
+                await _bookRepository.DeleteBook(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
 
     }
 }
