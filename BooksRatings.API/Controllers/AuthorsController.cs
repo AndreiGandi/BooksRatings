@@ -10,8 +10,8 @@ namespace BooksRatings.API.Controllers
     [ApiController]
     public class AuthorsController : ControllerBase
     {
-        private readonly AuthorRepository _authorRepository;
-        public AuthorsController(AuthorRepository authorRepository)
+        private readonly IAuthorRepository _authorRepository;
+        public AuthorsController(IAuthorRepository authorRepository)
         {
             _authorRepository = authorRepository;
         }
