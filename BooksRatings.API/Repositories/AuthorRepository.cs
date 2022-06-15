@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Dapper;
 using System.Linq;
+using System.Data;
 
 namespace BooksRatings.API.Repositories
 {
@@ -17,19 +18,34 @@ namespace BooksRatings.API.Repositories
         }
         public async Task<Author> CreateAuthor(AuthorForCreationDto author)
         {
-            throw new System.NotImplementedException();
+            var query = "INSERT INTO dbo.Authors (FirstName,MiddleName,LastName) VALUES(@FirstName, @MiddleName, @LastName);" +
+                        "SELECT CAST(SCOPE_IDENTITY() as int)";
+            var parameters = new DynamicParameters();
+            parameters.Add("FirstName", author.FirstName, DbType.String);
+            parameters.Add("MiddleName", author.MiddleName, DbType.String);
+            parameters.Add("LastName", author.LastName, DbType.String);
+            using (var dbConn = _dapperContext.CreateConnection())
+            {
+                var id = await dbConn.QuerySingleAsync<int>(query, parameters);
+                var createdAuthor = new Author()
+                {
+                    Id = id,
+                    FirstName = author.FirstName,
+                    MiddleName = author.MiddleName,
+                    LastName = author.LastName
+                };
+                return createdAuthor;
+            }
         }
-
-        public async Task DeleteAuthor(int id)
-        {
-            throw new System.NotImplementedException();
-        }
-
         public async Task<Author> GetAuthor(int id)
         {
-            throw new System.NotImplementedException();
+            var query = "SELECT * FROM Authors WHERE Id = @Id";
+            using (var dbConn = _dapperContext.CreateConnection())
+            {
+                var author = await dbConn.QuerySingleOrDefaultAsync<Author>(query, new { Id = id });
+                return author;
+            }
         }
-
         public async Task<IEnumerable<Author>> GetAuthors()
         {
             var query = "SELECT * FROM Authors";
@@ -39,10 +55,26 @@ namespace BooksRatings.API.Repositories
                 return authors.ToList();
             }
         }
-
         public async Task UpdateAuthor(int id, AuthorForUpdateDto author)
         {
-            throw new System.NotImplementedException();
+            var query = "UPDATE dbo.Authors SET FirstName = @FirstName, MiddleName = @MiddleName, LastName = @LastName WHERE Id = @Id";
+            var parameters = new DynamicParameters();
+            parameters.Add("Id", id, DbType.String);
+            parameters.Add("FirstName", author.FirstName, DbType.String);
+            parameters.Add("MiddleName", author.MiddleName, DbType.String);
+            parameters.Add("LastName", author.LastName, DbType.String);
+            using (var dbConn = _dapperContext.CreateConnection())
+            {
+                await dbConn.ExecuteAsync(query, parameters);
+            }
+        }
+        public async Task DeleteAuthor(int id)
+        {
+            var query = "DELETE FROM Authors WHERE Id = @Id";
+            using ( var dbConn = _dapperContext.CreateConnection())
+            {
+                await dbConn.ExecuteAsync(query, new { Id = id });
+            }
         }
     }
 }
