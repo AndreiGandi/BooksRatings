@@ -13,5 +13,7 @@ namespace BooksRatings.API.Repositories
         public Task UpdateAuthor(int id, AuthorForUpdateDto author);
         public Task DeleteAuthor(int id);
         public Task<Author> GetAuthorAndTheirBooks(int id);
+        public Task<List<Author>> GetAllAuthorsAndTheirBooks();
+
     }
 }

@@ -92,5 +92,32 @@ namespace BooksRatings.API.Repositories
                 }
             }
         }
+
+        public async Task<List<Author>> GetAllAuthorsAndTheirBooks()
+        {
+            var query = "SELECT * FROM Authors A INNER JOIN Books B ON A.Id = B.AuthorId";
+            
+            using (var dbConn = _dapperContext.CreateConnection())
+            {
+                var authorDictionary = new Dictionary<int, Author>();
+                var authors = await dbConn.QueryAsync<Author, Book, Author>
+                    (
+                        query, 
+                        (author, book) =>
+                        {
+                            Author authorEntry;
+                            if (!authorDictionary.TryGetValue(author.Id, out authorEntry))
+                            {
+                                authorEntry = author;
+                                authorDictionary.Add(authorEntry.Id, authorEntry);
+                            }
+                            authorEntry.Books.Add(book);
+                            return authorEntry;
+                        }, 
+                        splitOn: "Id"
+                    );
+                    return authors.Distinct().ToList();
+            }
+        }
     }
 }
