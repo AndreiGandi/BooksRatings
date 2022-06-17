@@ -84,6 +84,19 @@ namespace BooksRatings.API.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+        [HttpGet("{id}/AuthorAndTheirBooks")]
+        public async Task<IActionResult> GetAuthorAndTheirBooks(int id)
+        {
+            try
+            {
+                var author = await _authorRepository.GetAuthorAndTheirBooks(id);
+                return (author is not null) ? Ok(author) : NotFound();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
 
     }
 }

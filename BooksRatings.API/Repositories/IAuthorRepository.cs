@@ -12,5 +12,6 @@ namespace BooksRatings.API.Repositories
         public Task<Author> CreateAuthor(AuthorForCreationDto author);
         public Task UpdateAuthor(int id, AuthorForUpdateDto author);
         public Task DeleteAuthor(int id);
+        public Task<Author> GetAuthorAndTheirBooks(int id);
     }
 }

@@ -76,5 +76,21 @@ namespace BooksRatings.API.Repositories
                 await dbConn.ExecuteAsync(query, new { Id = id });
             }
         }
+
+        public async Task<Author> GetAuthorAndTheirBooks(int id)
+        {
+            var query = "SELECT FirstName, COALESCE(MiddleName, '') AS [MiddleName], LastName FROM Authors WHERE Id = @Id; "+
+                        "SELECT ISBN, Title, Year FROM Books WHERE AuthorId = @Id;";
+            using (var dbConn = _dapperContext.CreateConnection())
+            {
+                using (var result =await dbConn.QueryMultipleAsync(query, new { Id = id}))
+                {
+                    var author = await result.ReadSingleOrDefaultAsync<Author>();
+                    if(author is not null)
+                        author.Books = (await result.ReadAsync<Book>()).ToList();
+                    return author;
+                }
+            }
+        }
     }
 }
