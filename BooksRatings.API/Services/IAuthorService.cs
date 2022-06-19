@@ -3,9 +3,9 @@ using BooksRatings.API.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace BooksRatings.API.Repositories
+namespace BooksRatings.API.Services
 {
-    public interface IAuthorRepository
+    public interface IAuthorService
     {
         public Task<IEnumerable<Author>> GetAll();
         public Task<Author> GetById(int id);
@@ -14,6 +14,5 @@ namespace BooksRatings.API.Repositories
         public Task Delete(int id);
         public Task<Author> GetAuthorAndTheirBooks(int id);
         public Task<List<Author>> GetAllAuthorsAndTheirBooks();
-
     }
 }

@@ -18,7 +18,7 @@ namespace BooksRatings.API.Repositories
         {
             _dapperContext = dapperContext;
         }
-        public async Task<IEnumerable<Book>> GetBooks()
+        public async Task<IEnumerable<Book>> GetAll()
         {
             var query = "SELECT * FROM Books";
             using (var dbConn = _dapperContext.CreateConnection())
@@ -27,7 +27,7 @@ namespace BooksRatings.API.Repositories
                 return books.ToList();
             }
         }
-        public async Task<Book> GetBook(int id)
+        public async Task<Book> GetById(int id)
         {
             var query = "SELECT * FROM Books WHERE Id = @Id";
             using (var dbConn = _dapperContext.CreateConnection())
@@ -36,7 +36,7 @@ namespace BooksRatings.API.Repositories
                 return book.FirstOrDefault();
             }
         }
-        public async Task<Book> CreateBook(BookForCreationDto book)
+        public async Task<Book> Create(BookForCreationDto book)
         {
             var sql = "INSERT INTO dbo.Books(ISBN,Title,Description,AuthorId,Year) VALUES(@ISBN,@Title,@Description,@AuthorId,@Year);" +
                       "SELECT CAST(SCOPE_IDENTITY() as int)";
@@ -62,7 +62,7 @@ namespace BooksRatings.API.Repositories
             }
         }
 
-        public async Task UpdateBook(int id, BookForUpdateDto book)
+        public async Task Update(int id, BookForUpdateDto book)
         {
             var query = "UPDATE dbo.Books SET ISBN = @ISBN,Title = @Title, Description = @Description, AuthorId = @AuthorId, Year = @Year WHERE Id = @Id";
             var parameters = new DynamicParameters();
@@ -77,7 +77,7 @@ namespace BooksRatings.API.Repositories
                 await dbConn.ExecuteAsync(query, parameters);
             }
         }
-        public async Task DeleteBook(int id)
+        public async Task Delete(int id)
         {
             var query = "DELETE FROM Books WHERE Id = @Id;";
             using (var dbConn = _dapperContext.CreateConnection())

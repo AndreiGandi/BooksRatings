@@ -2,18 +2,15 @@
 using BooksRatings.API.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Dapper;
-using System.Data;
 
-namespace BooksRatings.API.Repositories
+namespace BooksRatings.API.Services
 {
-    public interface IBookRepository
+    public interface IBookService
     {
         public Task<Book> GetById(int id);
         public Task<IEnumerable<Book>> GetAll();
         public Task<Book> Create(BookForCreationDto book);
         public Task Update(int id, BookForUpdateDto book);
         public Task Delete(int id);
-
     }
 }

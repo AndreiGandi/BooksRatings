@@ -16,7 +16,7 @@ namespace BooksRatings.API.Repositories
         {
             _dapperContext = dapperContext;
         }
-        public async Task<Author> CreateAuthor(AuthorForCreationDto author)
+        public async Task<Author> Create(AuthorForCreationDto author)
         {
             var query = "INSERT INTO dbo.Authors (FirstName,MiddleName,LastName) VALUES(@FirstName, @MiddleName, @LastName);" +
                         "SELECT CAST(SCOPE_IDENTITY() as int)";
@@ -37,7 +37,7 @@ namespace BooksRatings.API.Repositories
                 return createdAuthor;
             }
         }
-        public async Task<Author> GetAuthor(int id)
+        public async Task<Author> GetById(int id)
         {
             var query = "SELECT * FROM Authors WHERE Id = @Id";
             using (var dbConn = _dapperContext.CreateConnection())
@@ -46,7 +46,7 @@ namespace BooksRatings.API.Repositories
                 return author;
             }
         }
-        public async Task<IEnumerable<Author>> GetAuthors()
+        public async Task<IEnumerable<Author>> GetAll()
         {
             var query = "SELECT * FROM Authors";
             using (var dbConn = _dapperContext.CreateConnection())
@@ -55,7 +55,7 @@ namespace BooksRatings.API.Repositories
                 return authors.ToList();
             }
         }
-        public async Task UpdateAuthor(int id, AuthorForUpdateDto author)
+        public async Task Update(int id, AuthorForUpdateDto author)
         {
             var query = "UPDATE dbo.Authors SET FirstName = @FirstName, MiddleName = @MiddleName, LastName = @LastName WHERE Id = @Id";
             var parameters = new DynamicParameters();
@@ -68,7 +68,7 @@ namespace BooksRatings.API.Repositories
                 await dbConn.ExecuteAsync(query, parameters);
             }
         }
-        public async Task DeleteAuthor(int id)
+        public async Task Delete(int id)
         {
             var query = "DELETE FROM Authors WHERE Id = @Id";
             using ( var dbConn = _dapperContext.CreateConnection())
